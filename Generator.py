@@ -13,21 +13,24 @@ from keras.callbacks import ModelCheckpoint
 from concurrent import futures
 
 from grpclib.server import Server
-from typing import AsyncIterator 
+from typing import AsyncIterator
 from gen.tensorbeat.sarosh_gen import SaroshGeneratorBase
+
 
 class GeneratorService(SaroshGeneratorBase):
     async def generate_music(self, notes):
         handler = InputHandler()
         song = handler.generateSong(notes)
-        return song 
+        return song
+
 
 async def start_server():
     host = "127.0.0.1"
-    port = 3491 
+    port = 3491
     server = Server([GeneratorService()])
     await server.start(host, port)
     await server.serve_forever()
+
 
 class InputHandler:
     def __init__(self):
@@ -43,19 +46,20 @@ class InputHandler:
             return notes
         return 0
 
+
 class Generator:
 
-    def __init__(self, n_ts = [], mod='weights.hdf5'):
+    def __init__(self, n_ts=[], mod='weights.hdf5'):
         self.model = mod
         self.notes_cond = n_ts
 
-    def load_notes(self, n, fromweb = False):
+    def load_notes(self, n, fromweb=False):
         if fromweb == False:
             self.notes_cond = n
 
     def consolidate_notes(self, a, b):
         d = len(set(a))
-        print("SET L",d)
+        print("SET L", d)
         la = len(a)
         lb = len(b)
         final_notes = []
@@ -79,7 +83,7 @@ class Generator:
         else:
             post_notes = self.notes_cond
 
-        notes=self.consolidate_notes(pre_notes, post_notes)
+        notes = self.consolidate_notes(pre_notes, post_notes)
 
         pitchnames = sorted(set(item for item in notes))
         n_vocab = len(set(notes))
@@ -148,7 +152,7 @@ class Generator:
 
             try:
                 s2 = instrument.partitionByInstrument(midi)
-                notes_to_parse = s2.parts[0].recurse() 
+                notes_to_parse = s2.parts[0].recurse()
             except:
                 notes_to_parse = midi.flat.notes
 
@@ -172,7 +176,7 @@ class Generator:
             recurrent_dropout=0.3,
             return_sequences=True
         ))
-        model.add(LSTM(512, return_sequences=True, recurrent_dropout=0.3,))
+        model.add(LSTM(512, return_sequences=True, recurrent_dropout=0.3, ))
         model.add(LSTM(512))
         model.add(BatchNorm())
         model.add(Dropout(0.3))
@@ -187,7 +191,7 @@ class Generator:
 
         return model
 
-    def train(self,model, network_input, network_output, eps=200):
+    def train(self, model, network_input, network_output, eps=200):
         filepath = "weights-improvement-{epoch:02d}-{loss:.4f}-bigger.hdf5"
         checkpoint = ModelCheckpoint(
             filepath,
@@ -201,7 +205,7 @@ class Generator:
         model.fit(network_input, network_output, epochs=eps, batch_size=128, callbacks=callbacks_list)
 
     def generate_notes(self, model, network_input, pitchnames, n_vocab):
-        start = numpy.random.randint(0, len(network_input)-1)
+        start = numpy.random.randint(0, len(network_input) - 1)
         int_to_note = dict((number, note) for number, note in enumerate(pitchnames))
 
         pattern = network_input[start]
@@ -217,7 +221,7 @@ class Generator:
             pattern = pattern[1:len(pattern)]
         return prediction_output
 
-    def create_midi(self, prediction_output, outputs = []):
+    def create_midi(self, prediction_output, outputs=[]):
         offset = 0
         output_notes = outputs
         for pattern in prediction_output:
@@ -246,6 +250,3 @@ class Generator:
 
 if __name__ == '__main__':
     start_server()
-
-
-
