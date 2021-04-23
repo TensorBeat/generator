@@ -2,19 +2,18 @@ import glob
 import pickle
 import numpy
 from music21 import converter, instrument, note, chord, stream
-from keras.models import Sequential
-from keras.layers import Dense
-from keras.layers import Dropout
-from keras.layers import LSTM
-from keras.layers import Activation
-from keras.layers import BatchNormalization as BatchNorm
-from keras.utils import np_utils
-from keras.callbacks import ModelCheckpoint
-from concurrent import futures
-
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import Dense
+from tensorflow.keras.layers import Dropout
+from tensorflow.keras.layers import LSTM
+from tensorflow.keras.layers import Activation
+from tensorflow.keras.layers import BatchNormalization as BatchNorm
+from tensorflow.keras import utils
+from tensorflow.keras.callbacks import ModelCheckpoint
+import asyncio
 from grpclib.server import Server
-from typing import AsyncIterator
-from gen.tensorbeat.sarosh_gen import SaroshGeneratorBase
+from grpclib.reflection.service import ServerReflection
+from tensorbeat.sarosh_gen import SaroshGeneratorBase, GenerateMusicResponse
 
 
 class GeneratorService(SaroshGeneratorBase):
@@ -27,9 +26,12 @@ class GeneratorService(SaroshGeneratorBase):
 async def start_server():
     host = "127.0.0.1"
     port = 3491
-    server = Server([GeneratorService()])
+    services = [GeneratorService()]
+    services = ServerReflection.extend(services)
+    server = Server(services)
     await server.start(host, port)
-    await server.serve_forever()
+    print("Listening on host {host} on port {port}".format(host=host, port=port))
+    await server.wait_closed()
 
 
 class InputHandler:
@@ -37,7 +39,7 @@ class InputHandler:
         pass
 
     def generateSong(self, seed):
-        g = Generator(seed)
+        g = Generator(n_ts=seed)
         if isinstance(seed, str):
             pass
             notes = g.generate()
@@ -135,7 +137,7 @@ class Generator:
 
         network_input = network_input / float(n_vocab)
 
-        network_output = np_utils.to_categorical(network_output)
+        network_output = utils.to_categorical(network_output)
 
         return (network_input, network_output)
 
@@ -161,9 +163,6 @@ class Generator:
                     notes.append(str(element.pitch))
                 elif isinstance(element, chord.Chord):
                     notes.append('.'.join(str(n) for n in element.normalOrder))
-
-        with open('data/new_notes', 'wb') as filepath:
-            pickle.dump(notes, filepath)
 
         return notes
 
@@ -249,4 +248,4 @@ class Generator:
 
 
 if __name__ == '__main__':
-    start_server()
+    asyncio.run(start_server())
