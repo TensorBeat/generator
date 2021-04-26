@@ -15,6 +15,7 @@ from grpclib.server import Server
 from grpclib.reflection.service import ServerReflection
 from tensorbeat.sarosh_gen import SaroshGeneratorBase, GenerateMusicResponse
 
+
 class GeneratorService(SaroshGeneratorBase):
     async def generate_music(self, notes):
         handler = InputHandler()
