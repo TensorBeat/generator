@@ -15,7 +15,6 @@ from grpclib.server import Server
 from grpclib.reflection.service import ServerReflection
 from tensorbeat.sarosh_gen import SaroshGeneratorBase, GenerateMusicResponse
 
-
 class GeneratorService(SaroshGeneratorBase):
     async def generate_music(self, notes):
         handler = InputHandler()
@@ -243,7 +242,7 @@ class Generator:
 
         midi_stream = stream.Stream(output_notes)
 
-        midi_stream.write('midi', fp='test_output.mid')
+        # midi_stream.write('midi', fp='test_output.mid')
         return output_notes
 
 
