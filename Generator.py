@@ -15,6 +15,11 @@ from grpclib.server import Server
 from grpclib.reflection.service import ServerReflection
 from tensorbeat.sarosh_gen import SaroshGeneratorBase, GenerateMusicResponse
 
+import tensorflow as tf
+print(tf.__version__)
+print(tf.config.list_physical_devices())
+exit()
+
 
 class GeneratorService(SaroshGeneratorBase):
     async def generate_music(self, notes):

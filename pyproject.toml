@@ -6,10 +6,10 @@ authors = ["M Sarosh Khan <Msk15163@gmail.com>", "Mark Vadeika <markvadeika@gmai
 
 [tool.poetry.dependencies]
 python = "^3.8"
-tensorflow-gpu = "^2.4.1"
 music21 = "^6.7.1"
 grpclib = "^0.4.1"
 betterproto = {version = "^2.0.0b3", allow-prereleases = true}
+tensorflow-gpu = "^2.4.1"
 
 [tool.poetry.dev-dependencies]
 
