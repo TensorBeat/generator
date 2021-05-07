@@ -5,7 +5,7 @@ from grpclib.client import Channel
 
 
 async def main():
-    channel = Channel(host="127.0.0.1", port=3491)
+    channel = Channel(host="grpc.tensorbeat.com", port=50051)
     service = sarosh_gen.SaroshGeneratorStub(channel)
     response = await service.generate_music(notes=["C4", "D4", "E4", "F4", "G4"])
     print(response)

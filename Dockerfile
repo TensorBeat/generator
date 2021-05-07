@@ -1,6 +1,6 @@
 # syntax=docker/dockerfile:1
 
-FROM python:3.8-slim-buster
+FROM tensorflow/tensorflow:2.4.1-gpu
 
 WORKDIR /app
 

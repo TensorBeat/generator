@@ -5,7 +5,7 @@ description = "generates midi songs from midi input"
 authors = ["M Sarosh Khan <Msk15163@gmail.com>", "Mark Vadeika <markvadeika@gmail.com>"]
 
 [tool.poetry.dependencies]
-python = "^3.8"
+python = "^3.6.9"
 music21 = "^6.7.1"
 grpclib = "^0.4.1"
 betterproto = {version = "^2.0.0b3", allow-prereleases = true}
