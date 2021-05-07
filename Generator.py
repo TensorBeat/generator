@@ -15,24 +15,20 @@ from grpclib.server import Server
 from grpclib.reflection.service import ServerReflection
 from tensorbeat.sarosh_gen import SaroshGeneratorBase, GenerateMusicResponse
 
-import tensorflow as tf
-print(tf.__version__)
-print(tf.config.list_physical_devices())
-exit()
-
 
 class GeneratorService(SaroshGeneratorBase):
-    async def generate_music(self, notes):
+    async def generate_music(self, notes) -> "GenerateMusicResponse":
         handler = InputHandler()
+        print("Received notes " + str(notes))
         song = handler.generateSong(notes)
-        return song
+        response = GenerateMusicResponse(song)
+        return response
 
 
 async def start_server():
     host = "127.0.0.1"
     port = 3491
     services = [GeneratorService()]
-    services = ServerReflection.extend(services)
     server = Server(services)
     await server.start(host, port)
     print("Listening on host {host} on port {port}".format(host=host, port=port))
@@ -66,7 +62,6 @@ class Generator:
 
     def consolidate_notes(self, a, b):
         d = len(set(a))
-        print("SET L", d)
         la = len(a)
         lb = len(b)
         final_notes = []
@@ -98,10 +93,13 @@ class Generator:
         network_input, normalized_input = self.prepare_sequences(notes, pitchnames, n_vocab)
         cat_net_in, net_out = self.prepare_sequences_categorical(notes, n_vocab)
         model = self.create_network(normalized_input, n_vocab)
-        self.train(model, cat_net_in, net_out, 1)
+        print("Loading weights")
+        self.train(model, cat_net_in, net_out, 0)
+        print("Generating songs")
         prediction_output = self.generate_notes(model, network_input, pitchnames, n_vocab)
+        print("Creating midi")
         song_notes = self.create_midi(prediction_output)
-        return song_notes
+        return list(map(lambda x: x.name, song_notes))
 
     def prepare_sequences(self, notes, pitchnames, n_vocab):
         note_to_int = dict((note, number) for number, note in enumerate(pitchnames))

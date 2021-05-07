@@ -9,7 +9,7 @@ python = "^3.8"
 music21 = "^6.7.1"
 grpclib = "^0.4.1"
 betterproto = {version = "^2.0.0b3", allow-prereleases = true}
-tensorflow-gpu = "^2.4.1"
+tensorflow = "^2.4.1"
 
 [tool.poetry.dev-dependencies]
 
