@@ -3,7 +3,6 @@ import glob
 import os
 import pickle
 
-import music21.note
 import numpy
 from grpclib.server import Server
 from music21 import converter, instrument, note, chord, stream
@@ -104,7 +103,7 @@ class Generator:
         song_notes = self.create_midi(prediction_output)
         note_names = []
         for frame in song_notes:
-            if isinstance(frame, music21.note.Note):
+            if isinstance(frame, note.Note):
                 note_names.append(frame.nameWithOctave)
             else:
                 note_names.append(".".join(list(map(lambda x: x.nameWithOctave + "4", frame.notes))))

@@ -4,10 +4,12 @@ FROM python:3.8-slim-buster
 
 WORKDIR /app
 
-COPY . .
-
 RUN apt-get update && apt-get -y install gcc curl
 RUN pip3 install poetry
+COPY poetry.lock pyproject.toml ./
+RUN poetry config virtualenvs.create false
 RUN poetry install
 
-CMD ["python3", "-m", "Generator.py"]
+COPY . .
+
+CMD ["python3", "Generator.py"]
