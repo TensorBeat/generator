@@ -6,14 +6,14 @@ metadata:
 spec:
   selector:
     matchLabels:
-      app: recommender
+      app: midi-generator
   template:
     metadata:
       labels:
-        app: recommender
+        app: midi-generator
     spec:
       containers:
-      - name: recommender
+      - name: midi-generator
         image: gcr.io/rowan-senior-project/tensorbeat-midi-gen:v0.1.0
         env:
           - name: PORT
