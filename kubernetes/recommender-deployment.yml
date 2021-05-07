@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
       - name: recommender
-        image: gcr.io/rowan-senior-project/tensorbeat-midi-generator:v0.1.0
+        image: gcr.io/rowan-senior-project/tensorbeat-midi-gen:v0.1.0
         env:
           - name: PORT
             value: "50051"
