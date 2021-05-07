@@ -1,18 +1,21 @@
+import asyncio
 import glob
+import os
 import pickle
+
+import music21.note
 import numpy
+from grpclib.server import Server
 from music21 import converter, instrument, note, chord, stream
-from tensorflow.keras.models import Sequential
+from tensorflow.keras import utils
+from tensorflow.keras.callbacks import ModelCheckpoint
+from tensorflow.keras.layers import Activation
+from tensorflow.keras.layers import BatchNormalization as BatchNorm
 from tensorflow.keras.layers import Dense
 from tensorflow.keras.layers import Dropout
 from tensorflow.keras.layers import LSTM
-from tensorflow.keras.layers import Activation
-from tensorflow.keras.layers import BatchNormalization as BatchNorm
-from tensorflow.keras import utils
-from tensorflow.keras.callbacks import ModelCheckpoint
-import asyncio
-from grpclib.server import Server
-from grpclib.reflection.service import ServerReflection
+from tensorflow.keras.models import Sequential
+
 from tensorbeat.sarosh_gen import SaroshGeneratorBase, GenerateMusicResponse
 
 
@@ -27,7 +30,7 @@ class GeneratorService(SaroshGeneratorBase):
 
 async def start_server():
     host = "127.0.0.1"
-    port = 3491
+    port = int(os.environ["PORT"])
     services = [GeneratorService()]
     server = Server(services)
     await server.start(host, port)
@@ -99,7 +102,13 @@ class Generator:
         prediction_output = self.generate_notes(model, network_input, pitchnames, n_vocab)
         print("Creating midi")
         song_notes = self.create_midi(prediction_output)
-        return list(map(lambda x: x.name, song_notes))
+        note_names = []
+        for frame in song_notes:
+            if isinstance(frame, music21.note.Note):
+                note_names.append(frame.nameWithOctave)
+            else:
+                note_names.append(".".join(list(map(lambda x: x.nameWithOctave + "4", frame.notes))))
+        return note_names
 
     def prepare_sequences(self, notes, pitchnames, n_vocab):
         note_to_int = dict((note, number) for number, note in enumerate(pitchnames))
