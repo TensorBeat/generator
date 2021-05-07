@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: tensorbeat
+  name: midi-generator
+spec:
+  selector:
+    matchLabels:
+      app: recommender
+  template:
+    metadata:
+      labels:
+        app: recommender
+    spec:
+      containers:
+      - name: recommender
+        image: gcr.io/rowan-senior-project/tensorbeat-midi-generator:v0.1.0
+        env:
+          - name: PORT
+            value: "50051"
+          - name: ENVIRONMENT
+            value: "prod"
+        ports:
+        - containerPort: 50051
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: midi-generator
+spec:
+  type: ClusterIP
+  selector:
+    app: midi-generator
+  ports:
+  - port: 50052
+    targetPort: 50051
+    name: grpc-web
+  - port: 50051
+    targetPort: 50051
+    name: grpc
